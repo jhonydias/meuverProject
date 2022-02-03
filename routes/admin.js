@@ -1,6 +1,8 @@
 const express = require('express');
-const router= express.Router();
-const Categoria = require("../models/Categoria")
+const router = express.Router();
+const mongoose = require("mongoose");
+const Categoria = require("../models/Categoria");
+const Postagem = require("../models/Postagem");
 
 router.get('/', (req,res) => {
     res.render("admin/index")
@@ -130,6 +132,38 @@ router.get("/postagens", (req,res) => {
 })
 
 router.get("/postagens/add", (req,res) => {
-    res.render("admin/addpostagem")
+    Categoria.find().lean().then((categorias) => {
+        res.render("admin/addpostagem", {categorias: categorias})
+    }).catch((err) => {
+        req.flash("error_message","Houve um erro ao carregar as categorias do formulário.")
+        res.redirect("/admin")
+    })
+})
+
+router.post("/postagens/new", (req,res)=>{
+    const erros = [];
+    //Criar validação para titulo, descrição, conteudo e slug
+    if(req.body.categoria == "0"){
+        erros.push({texto: "Categoria inválida, registre uma categoria"})
+    }
+
+    if(erros.length>0){
+        res.render("admin/addpostagem", {erros: erros})
+    }else{
+        const novaPostagem = {
+            titulo: req.body.titulo,
+            descricao: req.body.descricao,
+            conteudo: req.body.conteudo,
+            slug: req.body.slug,
+            categoria: req.body.categoria
+        }
+        new Postagem(novaPostagem).save.then(()=>{
+            req.flash("succees_msg", "Postagem criada com sucesso!")
+            res.redirect("/admin/postagens")
+        }).catch((err)=>{
+            req.flash("error_msg", "Erro ao criar a postagem:"+err)
+            res.redirect("/admin/postagens")
+        })
+    }
 })
 module.exports = router
