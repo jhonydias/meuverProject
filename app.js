@@ -5,10 +5,17 @@
     const bodyParser = require('body-parser');
     const app = express();
     const admin = require('./routes/admin')
+    const usuarios = require('./routes/usuario')
     const path = require("path");
     const { Mongoose } = require('mongoose');
     const session = require("express-session");
     const flash = require("connect-flash")
+    require("./models/Postagem");
+    const Postagem = mongoose.model("postagens");
+    require("./models/Categoria");
+    const Categoria = mongoose.model("categorias");
+    require("./models/Usuario")
+    const Usuario = mongoose.model("usuarios")
 //Configurações 
     //Session
     app.use(session({
@@ -43,8 +50,9 @@
         app.use(express.static(path.join(__dirname,"public")))
     
 //Rotas
-    app.use('/', admin)
+    app.use('/', usuarios)
     app.use('/admin', admin)
+    app.use('/usuarios', usuarios)
 //Outros
 const PORT = 8081
 app.listen(PORT,() => {

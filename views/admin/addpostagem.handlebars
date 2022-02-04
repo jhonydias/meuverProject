@@ -9,15 +9,15 @@
     <div class="card-body">
         <form action="/admin/postagens/new" method="POST">
             <label for="titulo">Título:</label><br>
-            <input type="text" name="titulo" id="titulo" placeholder="Titulo da categoria" class="form-control" >
+            <input type="text" name="titulo" id="titulo" placeholder="Titulo da categoria" class="form-control" aria-required="true" >
             <label for="slug">Slug:</label><br>
-            <input type="text" name="slug" id="slug" placeholder="Slug da categoria" class="form-control" >
+            <input type="text" name="slug" id="slug" placeholder="Slug da categoria" class="form-control" required>
             <label for="descricao">Descrição:</label><br>
-            <input type="text" name="descricao" id="descricao" placeholder="Descrição da categoria" class="form-control" >
+            <input type="text" name="descricao" id="descricao" placeholder="Descrição da categoria" class="form-control" required >
             <label for="conteudo">Conteúdo:</label><br>
-            <textarea class="form-control" name="conteudo"></textarea>
+            <textarea class="form-control" name="conteudo"></textarea required>
             <label for="categoria">Categoria:</label>
-            <select class="form-control" name="categoria" id="categoria">
+            <select class="form-control" name="categoria" id="categoria" required>
                 {{#each categorias}}
                     <option value="{{_id}}">{{nome}}</option>
                 {{else}}

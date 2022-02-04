@@ -128,7 +128,14 @@ router.post('/categorias/nova', (req,res) => {
     })
 
 router.get("/postagens", (req,res) => {
-    res.render("admin/postagens")
+    Postagem.find().lean().populate("categoria").sort({data: "desc"}).then((postagens)=>{
+        res.render("admin/postagens", {postagens: postagens})
+    }).catch((err)=>{
+        req.flash("error_msg", "Houve um erro ao carregar as postagens");
+        console.log(err);
+        res.redirect("/admin")
+    })
+
 })
 
 router.get("/postagens/add", (req,res) => {
@@ -157,7 +164,7 @@ router.post("/postagens/new", (req,res)=>{
             slug: req.body.slug,
             categoria: req.body.categoria
         }
-        new Postagem(novaPostagem).save.then(()=>{
+        new Postagem(novaPostagem).save().then(()=>{
             req.flash("succees_msg", "Postagem criada com sucesso!")
             res.redirect("/admin/postagens")
         }).catch((err)=>{
@@ -165,5 +172,67 @@ router.post("/postagens/new", (req,res)=>{
             res.redirect("/admin/postagens")
         })
     }
+})
+
+router.get("/postagens/edit/:id", (req,res) => {
+    Postagem.findOne({_id:req.params.id}).lean().then((postagem) => {
+
+        Categoria.find().lean().then((categorias) => {
+            res.render("admin/editpostagem", {categorias:categorias, postagem:postagem})
+        }).catch((err) => {
+            req.flash("error_msg", "Houve um erro ao carregar as categorias")
+            res.redirect("/admin/postagens")
+        })
+
+    }).catch((err) => {
+        req.flash("error_msg", "Post inexistente" + err)
+        res.redirect("/admin/postagens")
+    })
+    
+})
+
+router.post("/postagens/edit", (req,res) => {
+    Postagem.findOne({_id:req.body.id}).then((postagem) => {
+        //Tratamento de formulário
+        const erros = [];
+        postagem.titulo = String(req.body.titulo);
+        postagem.slug = String(req.body.slug);
+        postagem.date = Date.now();
+
+
+        if(!postagem.titulo || typeof postagem.titulo == undefined || postagem.titulo == null) {
+            erros.push({texto: "titulo inválido"});
+        }
+        if(!postagem.slug || typeof postagem.slug == undefined || postagem.slug == null) {
+            erros.push({texto: "slug inválido"});
+        }
+        if(postagem.titulo.length <= 2){
+            erros.push({texto: "O titulo deve ter mais de 2 caracteres"});
+            console.log(postagem.titulo.length);
+        }
+        if(erros.length!==0){
+            res.render("admin/postagens", {erros: erros})
+        }else{
+            postagem.save().then(() => {
+                req.flash("success_msg","postagem salva com sucesso")
+                console.log("postagem editada com sucesso!")
+                res.redirect("/admin/postagens")
+            }).catch((err) => {
+                req.flash("error_msg","Não foi possível editar a postagem.")
+                console.log("Erro ao editar a postagem" + err)
+                res.redirect("/admin/postagens")
+            });    
+        }
+    })
+})
+
+router.post("/postagens/deletar", (req,res) => {
+    Postagem.findOneAndRemove({_id: req.body.id}).then(() => {
+        req.flash("success_msg", "Postagem deletada com sucesso!")
+        res.redirect("/postagens")
+    }).catch((err) => {
+        req.flash("error_msg", "Houve um erro ao deletar essa postagem.")
+        res.redirect("/postagens")
+    })
 })
 module.exports = router
