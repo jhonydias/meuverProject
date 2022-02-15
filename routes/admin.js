@@ -5,7 +5,7 @@ const Categoria = require("../models/Categoria");
 const Postagem = require("../models/Postagem");
 
 router.get('/', (req,res) => {
-    res.render("admin/index")
+    res.render("index")
 })
 
 router.get('/cursos', (req,res) => {

@@ -14,8 +14,11 @@
     const Postagem = mongoose.model("postagens");
     require("./models/Categoria");
     const Categoria = mongoose.model("categorias");
-    require("./models/Usuario")
-    const Usuario = mongoose.model("usuarios")
+    require("./models/Usuario");
+    const Usuario = mongoose.model("usuarios");
+    const passport = require("passport");
+    require("./config/auth")(passport)
+    
 //Configurações 
     //Session
     app.use(session({
@@ -23,11 +26,18 @@
         resave: true,
         saveUninitialized: true
     }))
+
+    app.use(passport.initialize());
+    app.use(passport.session());
+    app.use(flash());
+
+
     app.use(flash());
     //Middleware: usando o res.locals.nomedavariavel criamos uma variável global
     app.use((req, res, next) => {
         res.locals.success_msg = req.flash("success_msg");
         res.locals.error_msg = req.flash("error_msg");
+        res.locals.error = req.flash("error");
         next();
     })    
     //Body Parser
@@ -50,6 +60,10 @@
         app.use(express.static(path.join(__dirname,"public")))
     
 //Rotas
+    app.get('/', (req,res)=>{
+        res.render("index");
+    })
+
     app.use('/', usuarios)
     app.use('/admin', admin)
     app.use('/usuarios', usuarios)

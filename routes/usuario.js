@@ -5,10 +5,23 @@ const Categoria = require("../models/Categoria");
 const Postagem = require("../models/Postagem");
 require('../models/Usuario');
 const Usuario = mongoose.model("usuarios");
-const bcrypt = require("bcryptjs")
+const bcrypt = require("bcryptjs");
+const passport = require('passport');
 
-router.get("/", (req,res)=>{
-    res.render("usuarios/index")
+router.get("/usuario/login", (req,res)=>{
+    res.render("index")
+})
+
+router.get("/usuario/entrei", (req,res) => {
+    res.render("entrei")
+})
+
+router.post("/usuario/login", (req,res, next)=>{
+    passport.authenticate("local", {
+        successRedirect: "/usuario/entrei",
+        failureRedirect: "/usuario/registro",
+        failureFlash: true
+    })(req,res,next)
 })
 
 router.get("/usuario/registro", (req,res)=>{
